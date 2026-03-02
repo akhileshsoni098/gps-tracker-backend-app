@@ -1,0 +1,24 @@
+Important points  
+
+
+* **SUPER_ADMIN**
+
+  * किसी भी **fleet** के लिए **USER** और **FLEET_ADMIN** बना सकता है
+  * `fleetId` explicitly देता है
+  * पूरे सिस्टम का access
+
+* **FLEET_ADMIN**
+
+  * **सिर्फ अपने fleet** के अंदर **USER** बना सकता है
+  * `fleetId` request से नहीं लेता, **`req.user.fleetId` से auto set** होता है
+  * FLEET_ADMIN / SUPER_ADMIN नहीं बना सकता
+
+* **USER**
+
+  * **Read-only** access (देखना ही देखना)
+  * कुछ create/update/delete नहीं कर सकता
+  * Self-registration ❌
+
+**Golden rule:**
+
+> `fleetId` हमेशा backend से तय होती है, client से नहीं।
