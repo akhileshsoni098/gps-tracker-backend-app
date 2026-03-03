@@ -1,5 +1,5 @@
 const { isValidObjectId } = require("mongoose");
-const Fleet = require("../models/Fleet");
+const Fleet = require("../../models/Fleet");
 
 //================ create fleet by super admin ==========
 
@@ -129,10 +129,10 @@ exports.getAllFleet = async (req, res) => {
 
     const [fleets, total] = await Promise.all([
       Fleet.find(filter)
-        .sort({ createdAt: -1 }) 
+        .sort({ createdAt: -1 })
         .skip(skip)
         .limit(parsedLimit)
-        .lean(), 
+        .lean(),
       Fleet.countDocuments(filter),
     ]);
 

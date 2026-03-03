@@ -8,7 +8,7 @@ const {
   updateFleet,
   getAllFleet,
   getFleetById,
-} = require("../../controllers/fleet.controller");
+} = require("../../controllers/admin/fleet.controller");
 
 const router = express.Router();
 

@@ -11,7 +11,7 @@ const FleetSchema = new mongoose.Schema(
     },
     meta: {
       type: Object,
-    }
+    },
   },
   { timestamps: true },
 );
