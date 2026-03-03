@@ -1,12 +1,18 @@
-const express = require("express")
+const express = require("express");
 
-const index = express()
+const index = express();
+
+const adminRoute = require("./admin/admin.routes");
+
+const fleetRoute = require("./fleet/fleet.routes");
+
+const userRoute = require("./users/user.route")
 
 
-const adminRoute = require("./admin/admin.routes")
+index.use("/admin", adminRoute);
 
+index.use("/", fleetRoute);
 
-index.use("/admin", adminRoute)
+index.use("/", userRoute);
 
-
-module.exports = index
+module.exports = index;

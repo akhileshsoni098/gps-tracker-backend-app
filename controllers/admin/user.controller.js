@@ -1,6 +1,7 @@
 const User = require("../../models/User");
 
 const bcrypt = require("bcrypt");
+
 const jwt = require("jsonwebtoken");
 
 //============= Register User ===============
@@ -14,7 +15,6 @@ exports.createUser = async (req, res) => {
         .status(401)
         .json({ status: false, message: "Un -Authenticated user" });
     }
-    console.log(req.user);
 
     if (req.user.role !== "SUPER_ADMIN" && req.user.role !== "FLEET_ADMIN") {
       return res
@@ -36,11 +36,25 @@ exports.createUser = async (req, res) => {
           .status(400)
           .json({ status: false, message: "FleetId is required" });
       }
-
-      if (req.user.role !== "USER") {
+      const fleetCheck = await User.findOne({
+        fleetId: fleetId,
+        _id: req.user._id,
+      });
+      if (!fleetCheck) {
         return res
-          .status(400)
-          .json({ status: false, message: "invalid ROLE input" });
+          .status(403)
+          .json({ status: false, message: "unauthorized-user" });
+      }
+
+      if (fleetCheck.status !== "ACTIVE") {
+        return res.status(400).json({
+          status: false,
+          message: `your current status is:${fleetCheck.status} it should be in "ACTIVE"`,
+        });
+      }
+
+      if (role !== "USER") {
+        return res.status(400).json({ status: false, message: "Invalid role" });
       }
     }
 
@@ -106,7 +120,6 @@ exports.logInUser = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-
     if (!user) {
       return res.status(404).json({ status: false, message: "User not found" });
     }
@@ -149,7 +162,7 @@ exports.profile = async (req, res) => {
         .json({ status: false, message: "Un -Authenticated user" });
     }
     return res.status(200).json({
-      status: false,
+      status: true,
       message: "Profile data retrived successfully",
       data: req.user,
     });
@@ -162,7 +175,7 @@ exports.profile = async (req, res) => {
 
 exports.updateProfileUser = async (req, res) => {
   try {
-    const id = req.params.id
+    const id = req.params.id;
     const { name, email, password, fleetId, role, status } = req.body;
 
     const updateData = {};
@@ -175,7 +188,6 @@ exports.updateProfileUser = async (req, res) => {
       }
       updateData.name = name;
     }
-
     if (role) {
       if (typeof role !== "string" || role.trim() === "") {
         return res
@@ -222,7 +234,6 @@ exports.updateProfileUser = async (req, res) => {
       const hashedPassword = await bcrypt.hash(password, saltRounds);
       updateData.password = hashedPassword;
     }
-
     const updatedUser = await User.findByIdAndUpdate(
       id,
       { $set: updateData },
@@ -259,7 +270,7 @@ exports.getAllRegisteredFleet = async (req, res) => {
     if (name && typeof name === "string" && name.trim()) {
       filter.name = {
         $regex: name.trim(),
-        $options: "i", 
+        $options: "i",
       };
     }
 
@@ -277,7 +288,7 @@ exports.getAllRegisteredFleet = async (req, res) => {
 
     const [users, totalUsers] = await Promise.all([
       User.find(filter)
-        .select("-password") 
+        .select("-password")
         .populate("fleetId", "name meta")
         .skip(skip)
         .limit(limit)
@@ -337,7 +348,7 @@ exports.getParticularFleetUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await User.findOne({ _id: id, role: "USER" }).populate(
+    const user = await User.find({ fleetId: id, role: "USER" }).populate(
       "fleetId",
       "name meta",
     );

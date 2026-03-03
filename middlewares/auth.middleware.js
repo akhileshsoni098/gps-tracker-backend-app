@@ -47,13 +47,69 @@ exports.authorizationAdmin = async (req, res, next) => {
         .json({ status: false, message: "Un-Authenticated user" });
     }
 
-    const user = await User.findById(req.user._id);
-
-    if (!user) {
-      return res.status(400).json({ status: false, message: "user not found" });
+    if (req.user.role !== "SUPER_ADMIN") {
+      return res
+        .status(403)
+        .json({ status: false, message: "Unauthorized user" });
     }
 
-    if (user.role !== "SUPER_ADMIN") {
+    next();
+  } catch (err) {
+    return res.status(500).json({ status: false, message: err.message });
+  }
+};
+
+//================= authorization fleet =============
+
+exports.authorizationFleet = async (req, res, next) => {
+  try {
+    if (!req.user || !req.user._id) {
+      return res
+        .status(401)
+        .json({ status: false, message: "Un-Authenticated user" });
+    }
+
+    const unAllowedFleetStatus = ["BLOCKED", "DELETED"];
+
+    if (unAllowedFleetStatus.includes(req.user.status)) {
+      return res.status(400).json({
+        status: false,
+        message: `your are in ${req.user.status} state`,
+      });
+    }
+
+    if (req.user.role !== "FLEET_ADMIN") {
+      return res
+        .status(403)
+        .json({ status: false, message: "Unauthorized user" });
+    }
+
+    next();
+  } catch (err) {
+    return res.status(500).json({ status: false, message: err.message });
+  }
+};
+
+//================== user authorization ===============
+
+exports.authorizationUser = async (req, res, next) => {
+  try {
+    if (!req.user || !req.user._id) {
+      return res
+        .status(401)
+        .json({ status: false, message: "Un-Authenticated user" });
+    }
+
+    const unAllowedFleetStatus = ["BLOCKED", "DELETED"];
+
+    if (unAllowedFleetStatus.includes(req.user.status)) {
+      return res.status(400).json({
+        status: false,
+        message: `your are in ${req.user.status} state`,
+      });
+    }
+
+    if (req.user.role !== "USER") {
       return res
         .status(403)
         .json({ status: false, message: "Unauthorized user" });
