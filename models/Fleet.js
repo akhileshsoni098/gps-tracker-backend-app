@@ -11,20 +11,7 @@ const FleetSchema = new mongoose.Schema(
     },
     meta: {
       type: Object,
-    },
-    status: {
-      type: String,
-      enum: ["ACTIVE", "INACTIVE"],
-      default: "ACTIVE",
-    },
-
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
-    deletedAt: {
-      type: Date,
-    },
+    }
   },
   { timestamps: true },
 );

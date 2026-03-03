@@ -4,7 +4,9 @@ const express = require("express");
 
 const cors = require("cors");
 
-const connectToDb = require("./db/db");
+
+const connectToDb = require("./config/db");
+
 
 const app = express();
 
@@ -21,7 +23,8 @@ app.get("/", (req, res) => {
 });
 
 
-const route = require("./routes/index")
+const route = require("./routes/index");
+
 
 app.use("/",route)
 

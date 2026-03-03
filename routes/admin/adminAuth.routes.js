@@ -11,13 +11,15 @@ const {
 
 const router = express();
 
+// create fleet and associated user of particular fleet
+
 router
   .route("/register/users")
   .post(authenticateToken, authorizationAdmin, createUser);
 
+  
 router.route("/logIn").post(logInUser);
 
 router.route("/profile").get(authenticateToken, authorizationAdmin, profile);
 
-
-module.exports = router
+module.exports = router;

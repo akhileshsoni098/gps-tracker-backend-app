@@ -11,6 +11,4 @@ admin.use("/", adminRoute)
 
 admin.use("/fleet", adminFleetRoute)
 
-
-
 module.exports = admin

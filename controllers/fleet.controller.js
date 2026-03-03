@@ -39,121 +39,119 @@ exports.createFleet = async (req, res) => {
 };
 
 //============== upadate fleet super admin only============
-
 exports.updateFleet = async (req, res) => {
   try {
     const fleetId = req.params.id;
 
     if (!fleetId || !isValidObjectId(fleetId)) {
-      return res
-        .status(400)
-        .json({ status: false, message: "Invalid fleet ID" });
+      return res.status(400).json({
+        status: false,
+        message: "Invalid fleet ID",
+      });
     }
 
-    const data = req.body;
-    let { name, meta, status, isDeleted } = data;
+    const { name, meta } = req.body;
+    const updateData = {};
 
-    if (name) {
-      if (name.trim() === "" || typeof name !== "string") {
-        return res
-          .status(400)
-          .json({ status: false, message: "name should be non empty string " });
+    // Validate name if provided
+    if (name !== undefined) {
+      if (typeof name !== "string" || !name.trim()) {
+        return res.status(400).json({
+          status: false,
+          message: "Name must be a non-empty string",
+        });
       }
-      // $ne current document ignore case sensitive
 
-      const checkFleet = await Fleet.findOne({
-        name: name,
+      // Check duplicate (excluding current fleet)
+      const existingFleet = await Fleet.findOne({
+        name: name.trim(),
         _id: { $ne: fleetId },
       });
-      if (checkFleet) {
-        return res
-          .status(400)
-          .json({ status: false, message: `${name} company already exist` });
-      }
-    }
 
-    isDeleted = isDeleted === true || isDeleted === "true" ? true : false;
-
-    if (isDeleted === true) {
-      status = "INACTIVE";
-    }
-
-    const validStatus = ["ACTIVE", "INACTIVE"];
-
-    if (!validStatus.includes(status)) {
-      return res
-        .status(400)
-        .json({
+      if (existingFleet) {
+        return res.status(400).json({
           status: false,
-          message: `invalid status: STATUS will be one of these ${validStatus.join(" ")} `,
+          message: `${name} company already exists`,
         });
+      }
+
+      updateData.name = name.trim();
     }
 
-    const updateFleet = await Fleet.findByIdAndUpdate(
-      fleetId,
-      {
-        name,
-        meta,
-        status,
-        isDeleted,
-        deletedAt: isDeleted ? new Date() : null,
-      },
-      { returnDocument: "after" },
-    );
-    if (!updateFleet) {
-      return res
-        .status(404)
-        .json({ status: false, message: "Fleet not found" });
+    if (meta !== undefined) {
+      updateData.meta = meta;
     }
-    return res.status(201).json({
+
+    const updatedFleet = await Fleet.findByIdAndUpdate(
+      fleetId,
+      { ...updateData },
+      {
+        returnDocument: "after",
+      },
+    );
+
+    if (!updatedFleet) {
+      return res.status(404).json({
+        status: false,
+        message: "Fleet not found",
+      });
+    }
+
+    return res.status(200).json({
       status: true,
       message: "Fleet updated successfully",
-      data: updateFleet,
+      data: updatedFleet,
     });
   } catch (err) {
-    return res.status(500).json({ status: false, message: err.message });
+    return res.status(500).json({
+      status: false,
+      message: err.message,
+    });
   }
 };
-
 //========== get all fleet for super admin =============
 
 exports.getAllFleet = async (req, res) => {
   try {
-    // pagination + query
+    const { page = 1, limit = 10, name, status } = req.query;
 
-    let query = req.query;
+    const parsedPage = Math.max(parseInt(page), 1);
+    const parsedLimit = Math.min(Math.max(parseInt(limit), 1), 100);
 
-    const page = parseInt(query.page) || 1;
-    const limit = parseInt(query.limit) || 10;
-    const skip = (page - 1) * limit;
+    const skip = (parsedPage - 1) * parsedLimit;
 
-    if (query.name) {
-      query.name = { $regex: query.name, $options: "i" }; // case sensitive
-    }
-    if (query.isDeleted !== undefined) {
-      query.isDeleted = query.isDeleted === "true" ? true : false;
-    }
-    if (query.status) {
-      query.status =
-        query.status.toUpperCase() === "ACTIVE" ? "ACTIVE" : "INACTIVE";
+    // Build safe filter object
+    const filter = {};
+
+    if (name) {
+      filter.name = { $regex: name.trim(), $options: "i" };
     }
 
-    const count = await Fleet.countDocuments({ ...query });
-
-    const fleet = await Fleet.find({ ...query })
-      .skip(skip)
-      .limit(limit);
+    const [fleets, total] = await Promise.all([
+      Fleet.find(filter)
+        .sort({ createdAt: -1 }) 
+        .skip(skip)
+        .limit(parsedLimit)
+        .lean(), 
+      Fleet.countDocuments(filter),
+    ]);
 
     return res.status(200).json({
       status: true,
       message: "Fleet fetched successfully",
-      data: fleet,
-      count: count,
-      page: page,
-      limit: limit,
+      data: fleets,
+      pagination: {
+        total,
+        page: parsedPage,
+        limit: parsedLimit,
+        totalPages: Math.ceil(total / parsedLimit),
+      },
     });
   } catch (err) {
-    return res.status(500).json({ status: false, message: err.message });
+    return res.status(500).json({
+      status: false,
+      message: err.message,
+    });
   }
 };
 
