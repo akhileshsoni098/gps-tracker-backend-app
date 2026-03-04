@@ -1,0 +1,9 @@
+GPS Company (You)
+     ↓
+Buy Devices (Inventory)
+     ↓
+Install in Fleet Vehicle
+     ↓
+Fleet pays Monthly Subscription
+     ↓
+Live Tracking Continues

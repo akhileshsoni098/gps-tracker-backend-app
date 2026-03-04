@@ -1,5 +1,5 @@
 const { isValidObjectId } = require("mongoose");
-const Fleet = require("../../models/Fleet");
+const Fleet = require("../../models/fleet.model");
 
 //================ create fleet by super admin ==========
 

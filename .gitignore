@@ -3,3 +3,6 @@ node_modules/
 .env
 README2.md
 note2.txt
+cron.txt
+lifecycle.txt
+scripts/deviceSimulator.js

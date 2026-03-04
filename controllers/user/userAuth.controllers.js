@@ -1,5 +1,6 @@
 const { isValidObjectId } = require("mongoose");
-const User = require("../../models/User");
+const User = require("../../models/user.model");
+
 
 exports.updateStatusUser = async (req, res) => {
   try {
