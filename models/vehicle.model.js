@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const VehicleSchema = new mongoose.Schema(
   {
     // Unique Vehicle Identifier (internal)
+
     vehicleId: {
       type: String,
       required: true,
@@ -11,6 +12,7 @@ const VehicleSchema = new mongoose.Schema(
     },
 
     // Multi-Tenant Isolation
+
     fleetId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Fleet",
@@ -19,6 +21,10 @@ const VehicleSchema = new mongoose.Schema(
     },
 
     // GPS Device Mapping
+
+
+    // device update assigned time update krenge
+
     deviceId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Device",
@@ -78,7 +84,7 @@ const VehicleSchema = new mongoose.Schema(
       },
       coordinates: {
         type: [Number], // [longitude, latitude]
-        required: true,
+        // required: true,
         index: "2dsphere",
       },
     },

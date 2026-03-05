@@ -1,0 +1,2 @@
+sabse phle device bna diye 
+ab device create hone ke baad particular device ke liye vehicle dekha jayega then vehicle ko device se link krna pdega 

@@ -26,6 +26,9 @@ const DeviceSchema = new mongoose.Schema(
       type: String,
     },
 
+
+    // device Update krtey time update krenge assign to vehicle 
+
     assignedFleetId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Fleet",

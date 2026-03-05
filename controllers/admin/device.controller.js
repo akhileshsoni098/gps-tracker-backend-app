@@ -67,6 +67,8 @@ exports.devicePurchaseEntry = async (req, res) => {
 
 // =============== Get all device purchase entry =====
 
+// status => AVAILABLE (to find all available device for assign to fleet or vehicle), ASSIGNED, INACTIVE
+
 exports.getAllPurchasedDevices = async (req, res) => {
   try {
     const query = req.query;
