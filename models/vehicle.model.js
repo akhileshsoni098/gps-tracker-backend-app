@@ -15,13 +15,12 @@ const VehicleSchema = new mongoose.Schema(
 
     fleetId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Fleet",
+      ref: "User",
       required: true,
       index: true,
     },
 
     // GPS Device Mapping
-
 
     // device update assigned time update krenge
 

@@ -2,6 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const Device = require("../../models/device.model");
 const Vehicle = require("../../models/vehicle.model");
 const User = require("../../models/user.model");
+const Trip = require("../../models/vechileTrip.model");
 
 //    create vehicle by fleet admin
 
@@ -92,8 +93,14 @@ exports.vehicleUpdate = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const { registrationNumber, vehicleType, model, manufacturer, status } =
-      req.body;
+    const {
+      registrationNumber,
+      vehicleType,
+      model,
+      manufacturer,
+      status,
+      currentTripId,
+    } = req.body;
 
     if (!id || !isValidObjectId(req.user._id)) {
       return res
@@ -147,9 +154,38 @@ exports.vehicleUpdate = async (req, res) => {
       });
     }
 
+    // if tripId assigning to this vechicle
+
+    if (currentTripId) {
+      if (!isValidObjectId(currentTripId)) {
+        return res
+          .status(400)
+          .json({ status: false, message: "Please Provide a valid trip id" });
+      }
+
+      const checkTrip = await Trip.findById(currentTripId);
+
+      if (!checkTrip) {
+        return res
+          .status(404)
+          .json({ status: false, message: "Trip not Found" });
+      }
+
+      if (checkTrip.fleetId.toString() !== req.user._id.toString()) {
+        return res
+          .status(403)
+          .json({
+            status: false,
+            message: "Un-Authorized to assigning thids trip",
+          });
+      }
+    }
+
     const updatedVehicle = await Vehicle.findByIdAndUpdate(
       id,
-      { $set: { registrationNumber, vehicleType, model, manufacturer,status } },
+      {
+        $set: { registrationNumber, vehicleType, model, manufacturer, status,currentTripId },
+      },
       { returnDocument: "after" },
     );
 
@@ -177,7 +213,7 @@ exports.getFleetVehicles = async (req, res) => {
 
     const vehicles = await Vehicle.find({ fleetId: id })
       .populate("fleetId", "name email role status")
-      .populate("deviceId", "deviceId status lastLocation")
+      .populate("deviceId", "deviceId status lastLocation");
     //   .populate("tripId", "");
 
     return res.status(200).json({

@@ -28,7 +28,7 @@ exports.createUser = async (req, res) => {
           .json({ status: false, message: "FleetId is required" });
       }
     }
-
+// If fleet admin 
     if (req.user.role === "FLEET_ADMIN") {
       if (!fleetId) {
         return res

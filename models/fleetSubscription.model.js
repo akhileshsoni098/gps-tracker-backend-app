@@ -6,7 +6,7 @@ const FleetDeviceSubscriptionSchema = new mongoose.Schema(
   {
     fleetId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Fleet",
+       ref: "User",
       required: true,
       index: true,
     },

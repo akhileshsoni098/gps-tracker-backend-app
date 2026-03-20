@@ -18,3 +18,4 @@ router.route("/:id").put(authenticateToken, authorizationFleet,vehicleUpdate);
 router.route("/").get(authenticateToken, authorizationFleet,getFleetVehicles);
 
 module.exports = router;
+ 

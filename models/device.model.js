@@ -31,7 +31,7 @@ const DeviceSchema = new mongoose.Schema(
 
     assignedFleetId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Fleet",
+      ref: "User",
       default: null,
     },
 
